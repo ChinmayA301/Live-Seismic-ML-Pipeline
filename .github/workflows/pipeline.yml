@@ -1,0 +1,38 @@
+name: seismic-pipeline
+
+# Genuinely live: runs on a schedule, pulls the latest USGS catalog, retrains,
+# scores, monitors drift, and commits the refreshed reports back to the repo.
+on:
+  schedule:
+    - cron: "0 */6 * * *"     # every 6 hours
+  workflow_dispatch:           # manual trigger
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install
+        run: pip install -r requirements.txt
+      - name: Pipeline tick (ingest live month → validate → train → score → monitor)
+        run: |
+          python -m src.ingest month
+          python -m src.validate
+          python -m src.train
+          python -m src.score
+          python -m src.monitor
+          python -m src.status
+          python -m src.plots
+      - name: Commit refreshed reports
+        run: |
+          git config user.name  "seismic-bot"
+          git config user.email "actions@github.com"
+          git add reports/ || true
+          git commit -m "chore: refresh live reports [skip ci]" || echo "no changes"
+          git push || echo "nothing to push"

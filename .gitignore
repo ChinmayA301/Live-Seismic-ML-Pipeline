@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+data/*.duckdb
+data/*.geojson
+models/
+mlruns/
+reports/drift_report.html
+.DS_Store
