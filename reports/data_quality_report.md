@@ -1,4 +1,4 @@
-# Data Quality — events (10,688 rows)
+# Data Quality — events (10,716 rows)
 
 | expectation                   | column   | critical   | result   |   unexpected_pct |
 |:------------------------------|:---------|:-----------|:---------|-----------------:|
@@ -10,4 +10,4 @@
 | ExpectColumnValuesToBeBetween | lon      | yes        | PASS     |            0     |
 | ExpectColumnValuesToBeBetween | rms      | no         | PASS     |            0     |
 | ExpectColumnValuesToBeBetween | gap      | no         | PASS     |            0     |
-| ExpectColumnValuesToBeInSet   | type     | no         | PASS     |            0.009 |
+| ExpectColumnValuesToBeInSet   | type     | no         | PASS     |            0.019 |
