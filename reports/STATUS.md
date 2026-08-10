@@ -1,17 +1,17 @@
 # Pipeline Status
 
-_Auto-generated 2026-08-10 00:52 UTC by the scheduled job._
+_Auto-generated 2026-08-10 07:08 UTC by the scheduled job._
 
 | | |
 |---|---|
-| Events in catalog | **10,657** |
+| Events in catalog | **10,639** |
 | Catalog span | 2026-07-11 → 2026-08-10 |
-| Scored | 10,418 |
-| Flagged for review | **603** (5.8%) |
+| Scored | 10,400 |
+| Flagged for review | **565** (5.4%) |
 
 ## Model (magnitude estimation, temporal test)
 | MAE | RMSE | R² | 90% PI coverage (raw → conformal) |
 |---|---|---|---|
-| 0.291 | 0.393 | 0.894 | 73% → 86% |
+| 0.291 | 0.390 | 0.893 | 73% → 87% |
 
 See `reports/drift_report.html` for the latest feature-drift check.
