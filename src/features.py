@@ -7,10 +7,18 @@ from . import config as C
 
 def make_features(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
+    # DuckDB hands back pandas nullable dtypes (nst is INTEGER, so Int32) whenever
+    # the column contains NULLs. Those propagate into derived columns and make
+    # DataFrame.values object-dtype once mixed with plain float64, which breaks
+    # numpy consumers downstream (np.corrcoef in the drift report). Normalise here
+    # so every consumer sees plain float64.
+    for c in ("depth", "nst", "gap", "dmin", "rms", "lat", "lon"):
+        if c in df.columns:
+            df[c] = pd.to_numeric(df[c], errors="coerce").astype("float64")
     df["abs_lat"] = df["lat"].abs()
     df["log_nst"] = np.log1p(df["nst"].clip(lower=0))
     df["log_dmin"] = np.log1p(df["dmin"].clip(lower=0))
-    df["hour"] = pd.to_datetime(df["time"], utc=True).dt.hour
+    df["hour"] = pd.to_datetime(df["time"], utc=True).dt.hour.astype("float64")
     return df
 
 
