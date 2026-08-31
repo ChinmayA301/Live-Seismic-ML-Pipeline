@@ -1,5 +1,7 @@
 # Live Seismic ML Pipeline
 
+[![seismic-pipeline](https://github.com/ChinmayA301/Live-Seismic-ML-Pipeline/actions/workflows/pipeline.yml/badge.svg)](https://github.com/ChinmayA301/Live-Seismic-ML-Pipeline/actions/workflows/pipeline.yml)
+
 **A production-style MLOps pipeline on a live scientific data stream: it ingests the USGS earthquake feed on a schedule, validates it, estimates each event's magnitude from detection-network geometry with a *calibrated prediction interval*, flags network-inconsistent events for review, and monitors its own drift — end to end, one command.**
 
 `Python` · `scikit-learn` · `DuckDB` · `Great Expectations` · `MLflow` · `Evidently` · `conformal prediction` · `GitHub Actions (scheduled)`
@@ -55,7 +57,7 @@ Live snapshot: [`reports/STATUS.md`](reports/STATUS.md) (auto-updated by the sch
 ## Reproduce
 ```bash
 python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements.lock   # exact pins; requirements.txt lists direct deps
 
 python -m src.ingest month     # bootstrap catalog from the live feed
 python -m src.train            # train + conformal-calibrate + log to MLflow

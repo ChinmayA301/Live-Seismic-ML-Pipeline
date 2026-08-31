@@ -1,3 +1,7 @@
+# Direct dependencies. CI installs from requirements.lock (fully pinned,
+# including transitives) — regenerate it after editing this file:
+#   uv pip compile requirements.txt --universal --python-version 3.11 \
+#     --output-file requirements.lock
 pandas>=2.0
 numpy>=1.24
 scikit-learn>=1.3

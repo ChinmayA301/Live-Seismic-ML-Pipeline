@@ -9,6 +9,10 @@ on:
 
 permissions:
   contents: write
+  issues: write                # opens/closes the pipeline-failure alert issue
+
+env:
+  ALERT_LABEL: pipeline-failure
 
 jobs:
   run:
@@ -18,8 +22,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      # Fully pinned transitive lock (see requirements.lock). The environment is
+      # rebuilt from scratch every 6 hours, so an unpinned dep is a live break
+      # waiting to happen — regenerate the lock deliberately, don't drift into it.
       - name: Install
-        run: pip install -r requirements.txt
+        run: pip install -r requirements.lock
       - name: Pipeline tick (ingest live month → validate → train → score → monitor)
         env:
           MLFLOW_ALLOW_FILE_STORE: "true"
@@ -38,3 +45,52 @@ jobs:
           git add reports/ || true
           git commit -m "chore: refresh live reports [skip ci]" || echo "no changes"
           git push || echo "nothing to push"
+
+      # Scheduled runs fail silently otherwise — this pipeline was red for 8+
+      # consecutive ticks before anyone noticed. One open issue per outage:
+      # opened on the first red tick, closed automatically on recovery.
+      - name: Alert on failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          COMMIT_SHA: ${{ github.sha }}
+          TRIGGER: ${{ github.event_name }}
+        run: |
+          gh label create "$ALERT_LABEL" --color B60205 \
+            --description "Scheduled pipeline tick is failing" 2>/dev/null || true
+          open_issue=$(gh issue list --state open --label "$ALERT_LABEL" \
+            --limit 1 --json number --jq '.[0].number // empty')
+          if [ -n "$open_issue" ]; then
+            echo "Alert issue #$open_issue already open; not filing a duplicate."
+            exit 0
+          fi
+          cat > /tmp/alert-body.md <<EOF
+          The scheduled \`seismic-pipeline\` tick failed.
+
+          | | |
+          |---|---|
+          | Failed run | $RUN_URL |
+          | Commit | \`$COMMIT_SHA\` |
+          | Trigger | \`$TRIGGER\` |
+
+          This issue closes itself on the next green tick, and is not duplicated
+          while it stays open.
+          EOF
+          sed -i 's/^          //' /tmp/alert-body.md
+          gh issue create \
+            --title "Scheduled pipeline is failing" \
+            --label "$ALERT_LABEL" \
+            --body-file /tmp/alert-body.md
+
+      - name: Close alert on recovery
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          for n in $(gh issue list --state open --label "$ALERT_LABEL" \
+                       --limit 20 --json number --jq '.[].number'); do
+            echo "Closing recovered alert issue #$n"
+            gh issue close "$n" --comment "Recovered: the pipeline tick is green again. $RUN_URL"
+          done
