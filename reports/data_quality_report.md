@@ -1,4 +1,4 @@
-# Data Quality — events (11,040 rows)
+# Data Quality — events (11,059 rows)
 
 | expectation                   | column   | critical   | result   |   unexpected_pct |
 |:------------------------------|:---------|:-----------|:---------|-----------------:|
