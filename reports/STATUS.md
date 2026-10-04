@@ -1,13 +1,13 @@
 # Pipeline Status
 
-_Auto-generated 2026-10-04 16:06 UTC by the scheduled job._
+_Auto-generated 2026-10-04 20:37 UTC by the scheduled job._
 
 | | |
 |---|---|
-| Events in catalog | **10,460** |
+| Events in catalog | **10,462** |
 | Catalog span | 2026-09-04 → 2026-10-04 |
-| Scored | 10,256 |
-| Flagged for review | **524** (5.1%) |
+| Scored | 10,261 |
+| Flagged for review | **513** (5.0%) |
 
 ## Model (magnitude estimation, temporal test)
 | MAE | RMSE | R² | 90% PI coverage (raw → conformal) |
